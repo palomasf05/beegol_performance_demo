@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beegol · Consulta de dados</title>
+  <style>
+    :root {
+      --brand-deep: #0B1222;
+      --brand: #1651FF;
+      --brand-light: #EAF0FF;
+      --surface: #ffffff;
+      --background: #F3F5FA;
+      --border: #DEE5EF;
+      --text: #18243B;
+      --muted: #63738F;
+      --danger: #b42318;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--background);
+      color: var(--text);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .topbar {
+      height: 56px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: white;
+      background: var(--brand-deep);
+      position: relative;
+    }
+
+    .brand { font-weight: 700; }
+    .title { color: rgba(255,255,255,.72); font-size: 14px; }
+    .topbar-nav {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 11px;
+    background: rgba(0,0,0,.12);
+    }
+
+      .topbar-nav a {
+    min-width: 112px;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    color: rgba(255,255,255,.68);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: background .15s, color .15s, border-color .15s;
+    }
+
+      .topbar-nav a:hover {
+    color: white;
+    background: rgba(255,255,255,.08);
+    }
+
+      .topbar-nav a.active {
+    color: white;
+    border-color: rgba(91,147,255,.55);
+    background: rgba(22,81,255,.3);
+    box-shadow: 0 2px 8px rgba(0,0,0,.14);
+    }
+    .top-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .top-actions a, .top-actions button {
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 7px;
+      padding: 7px 12px;
+      background: transparent;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px 24px 40px;
+    }
+
+    .heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    h1 { margin: 0 0 6px; font-size: 26px; }
+    .subtitle { margin: 0; color: var(--muted); }
+
+    .export {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 48px;
+      border: 2px solid #0A6B52;
+      border-radius: 11px;
+      padding: 12px 22px;
+      background: #087A5B;
+      color: white;
+      box-shadow: 0 8px 18px rgba(8, 122, 91, .24);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .01em;
+      cursor: pointer;
+      transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
+    }
+
+    .export::before {
+      content: "↓";
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: rgba(255,255,255,.16);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .export:hover:not(:disabled) {
+      background: #056A4E;
+      box-shadow: 0 10px 22px rgba(8, 122, 91, .34);
+      transform: translateY(-1px);
+    }
+
+    .export:focus-visible {
+      outline: 3px solid rgba(29, 158, 117, .3);
+      outline-offset: 3px;
+    }
+
+    .export:disabled {
+      border-color: #A9CDC1;
+      background: #B9D8CE;
+      box-shadow: none;
+      opacity: .7;
+      cursor: not-allowed;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 320px)) 1fr;
+      gap: 16px;
+      align-items: end;
+      padding: 18px;
+      margin-bottom: 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    select, input[type="search"] {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      color: var(--text);
+      font: inherit;
+    }
+
+    .count {
+      justify-self: end;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--brand-light);
+      color: #233A63;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .message {
+      display: none;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      border-radius: 9px;
+      background: #fff1f0;
+      color: var(--danger);
+    }
+
+    .message.show { display: block; }
+
+    .table-card {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    .table-scroll { overflow: auto; max-height: calc(100vh - 270px); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      padding: 12px 14px;
+      background: #f7faf9;
+      color: var(--muted);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 11px 14px;
+      border-bottom: 1px solid #edf2f0;
+    }
+
+    tbody tr:hover { background: #f8fbfa; }
+
+    .loading {
+      padding: 42px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      .title, #userName { display: none; }
+      main { padding: 20px 14px; }
+      .heading { align-items: stretch; flex-direction: column; }
+      .filters { grid-template-columns: 1fr; }
+      .count { justify-self: start; }
+    }
+  </style>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/brand.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="dashboard.html"><img src="assets/logo-beegol.svg" alt="Beegol" class="brand-logo"></a>
+    <div class="title">Portal Regional de Performance</div>
+    <nav class="topbar-nav" aria-label="Menu principal">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="dados.html" class="active" aria-current="page">Dados e exportação</a>
+    </nav>
+    <div class="top-actions">
+      <span id="userName"></span>
+      <button type="button" id="logoutButton">Sair</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="heading">
+      <div>
+        <h1>Consulta e exportação</h1>
+        <p class="subtitle">Dados carregados da base regional do portal.</p>
+      </div>
+      <button type="button" class="export" id="exportButton" disabled>Baixar CSV filtrado</button>
+    </div>
+
+    <section class="filters" aria-label="Filtros">
+      <div>
+        <label for="cityFilter">Cidade</label>
+        <input
+          type="search"
+          id="cityFilter"
+          list="cityFilterOptions"
+          placeholder="Digite para buscar uma cidade"
+          autocomplete="off"
+          disabled
+        >
+        <datalist id="cityFilterOptions"></datalist>
+      </div>
+      <div>
+        <label for="oltFilter">OLT</label>
+        <input
+          type="search"
+          id="oltFilter"
+          list="oltFilterOptions"
+          placeholder="Todas as OLTs"
+          autocomplete="off"
+          disabled
+        >
+        <datalist id="oltFilterOptions"></datalist>
+      </div>
+      <div class="count" id="rowCount">Carregando...</div>
+    </section>
+
+    <div class="message" id="message" role="alert"></div>
+
+    <section class="table-card">
+      <div class="table-scroll">
+        <table id="dataTable">
+          <thead></thead>
+          <tbody>
+            <tr><td class="loading">Autenticando e carregando o CSV...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      columns: [],
+      rows: [],
+      filteredRows: [],
+      cities: [],
+      bundle: '',
+      cityColumn: '',
+      oltColumn: ''
+    };
+
+    const cityFilter = document.getElementById('cityFilter');
+    const oltFilter = document.getElementById('oltFilter');
+    const rowCount = document.getElementById('rowCount');
+    const message = document.getElementById('message');
+    const exportButton = document.getElementById('exportButton');
+    const table = document.getElementById('dataTable');
+
+    function normalize(value) {
+      return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim()
+        .toLowerCase();
+    }
+
+    function parseCsv(text) {
+      const rows = [];
+      const firstLine = text.split(/\r?\n/, 1)[0] || '';
+      const delimiter = firstLine.split(';').length > firstLine.split(',').length ? ';' : ',';
+      let row = [];
+      let value = '';
+      let quoted = false;
+
+      for (let index = 0; index < text.length; index += 1) {
+        const character = text[index];
+        const next = text[index + 1];
+
+        if (character === '"') {
+          if (quoted && next === '"') {
+            value += '"';
+            index += 1;
+          } else {
+            quoted = !quoted;
+          }
+        } else if (character === delimiter && !quoted) {
+          row.push(value);
+          value = '';
+        } else if ((character === '\n' || character === '\r') && !quoted) {
+          if (character === '\r' && next === '\n') index += 1;
+          row.push(value);
+          if (row.some(cell => cell !== '')) rows.push(row);
+          row = [];
+          value = '';
+        } else {
+          value += character;
+        }
+      }
+
+      row.push(value);
+      if (row.some(cell => cell !== '')) rows.push(row);
+      return rows;
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? '');
+      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+
+    function findColumn(columns, expected) {
+      return columns.find(column => normalize(column) === expected) || '';
+    }
+
+    function setOptions(select, values, allLabel, defaultValue = '') {
+      const optionsContainer = document.getElementById(select.id + 'Options') || select;
+      optionsContainer.textContent = '';
+      const allOption = document.createElement('option');
+      allOption.value = '';
+      allOption.textContent = allLabel;
+      optionsContainer.appendChild(allOption);
+
+      values.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        optionsContainer.appendChild(option);
+      });
+
+      const matchingDefault = values.find(value => normalize(value) === normalize(defaultValue));
+      select.value = matchingDefault || '';
+    }
+
+    function uniqueValues(column) {
+      return [...new Set(state.rows.map(row => row[column]).filter(Boolean))]
+        .sort((left, right) => left.localeCompare(right, 'pt-BR'));
+    }
+
+    const columnLabels = {ID:'ID demo',CPF_CNPJ_FORMATADO:'Documento demo',NATUREZA_JURIDICA:'Natureza jurídica',PORTE:'Porte',SITUACAO:'Situação',NIVEL_ATIVIDADE:'Nível de atividade',DESC_CNAE_PRINCIPAL:'Atividade principal',SETOR:'Setor',RAMO_ATIVIDADE:'Ramo de atividade',UF:'UF',MUNICIPIO:'Município',LOGRADOURO:'Logradouro',NUMERO:'Número',BAIRRO:'Bairro',CEP:'CEP',GRP_EMP_FATURAMENTO:'Faixa de faturamento',SEGMENTO_TELECOM:'Segmento telecom',OLT:'OLT demo',Distancia_OLT_km:'Distância da OLT (km)',FLAG_DENTRO_POLIGONO_OLT:'Cobertura',Cluster:'Cluster','Nome Cluster':'Perfil de mercado'};
+    function renderTable() {
+      const head = table.querySelector('thead');
+      const body = table.querySelector('tbody');
+      head.textContent = '';
+      body.textContent = '';
+
+      const headerRow = document.createElement('tr');
+      state.columns.forEach(column => {
+        const th = document.createElement('th');
+        th.textContent = columnLabels[column] || column;
+        headerRow.appendChild(th);
+      });
+      head.appendChild(headerRow);
+
+      const fragment = document.createDocumentFragment();
+      state.filteredRows.slice(0, 500).forEach(row => {
+        const tr = document.createElement('tr');
+        state.columns.forEach(column => {
+          const td = document.createElement('td');
+          td.textContent = row[column] ?? '';
+          tr.appendChild(td);
+        });
+        fragment.appendChild(tr);
+      });
+      body.appendChild(fragment);
+
+      if (!state.filteredRows.length) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = state.columns.length;
+        td.className = 'loading';
+        td.textContent = 'Nenhum registro encontrado para os filtros selecionados.';
+        tr.appendChild(td);
+        body.appendChild(tr);
+      }
+
+      rowCount.textContent = state.filteredRows.length > 500
+        ? `${state.filteredRows.length.toLocaleString('pt-BR')} registro(s) · exibindo 500`
+        : `${state.filteredRows.length.toLocaleString('pt-BR')} registro(s)`;
+      exportButton.disabled = !state.filteredRows.length;
+    }
+
+    function applyFilters() {
+      const olt = oltFilter.value;
+      state.filteredRows = state.rows.filter(row =>
+        !olt || normalize(row[state.oltColumn]).includes(normalize(olt))
+      );
+      renderTable();
+    }
+
+    function showError(text) {
+      message.textContent = text;
+      message.classList.add('show');
+      rowCount.textContent = 'Falha ao carregar';
+      table.querySelector('thead').textContent = '';
+      table.querySelector('tbody').innerHTML = '<tr><td class="loading">A tabela será exibida quando o CSV puder ser baixado.</td></tr>';
+    }
+
+    async function authenticate() {
+      const response = await fetch('/api/session', { cache: 'no-store' });
+      if (!response.ok) {
+        window.location.href = 'index.html';
+        return null;
+      }
+      const session = await response.json();
+      document.getElementById('userName').textContent = session.user;
+      return session;
+    }
+
+    async function loadCityData() {
+      const city = state.cities.find(item => item.name === cityFilter.value);
+      if (!city) { showError('Selecione um município disponível na lista.'); return; }
+
+      cityFilter.disabled = true;
+      oltFilter.disabled = true;
+      exportButton.disabled = true;
+      rowCount.textContent = 'Carregando cidade...';
+      message.classList.remove('show');
+
+      try {
+        const start = city.offset;
+        const end = city.offset + city.length - 1;
+        const response = await fetch(`/data/${encodeURIComponent(city.bundle || state.bundle)}`, {
+          cache: 'no-store',
+          headers: { Range: `bytes=${start}-${end}` }
+        });
+        if (!response.ok) throw new Error(`Falha ao carregar ${city.name} (HTTP ${response.status})`);
+
+        const downloaded = await response.arrayBuffer();
+        const compressed = response.status === 206
+          ? downloaded
+          : downloaded.slice(start, end + 1);
+        if (compressed.byteLength !== city.length) {
+          throw new Error(`Bloco de ${city.name} incompleto`);
+        }
+        if (!('DecompressionStream' in window)) {
+          throw new Error('Este navegador não suporta descompactação gzip. Use uma versão atual do Chrome ou Edge.');
+        }
+        const decompressed = new Blob([compressed])
+          .stream()
+          .pipeThrough(new DecompressionStream('gzip'));
+        const csvText = await new Response(decompressed).text();
+        const matrix = parseCsv(csvText);
+        if (matrix.length < 2) throw new Error(`Não há dados para ${city.name}`);
+
+        state.columns = matrix[0].map((column, index) =>
+          String(column || `Coluna ${index + 1}`).replace(/^\uFEFF/, '').trim()
+        );
+        state.cityColumn = findColumn(state.columns, 'municipio') || findColumn(state.columns, 'cidade');
+        state.oltColumn = findColumn(state.columns, 'olt');
+        if (!state.cityColumn || !state.oltColumn) {
+          throw new Error('Os dados gerados precisam conter MUNICIPIO e OLT');
+        }
+
+        state.rows = matrix.slice(1).map(cells =>
+          Object.fromEntries(state.columns.map((column, index) => [column, cells[index] ?? '']))
+        );
+        setOptions(oltFilter, uniqueValues(state.oltColumn), 'Todas as OLTs');
+        cityFilter.disabled = false;
+        oltFilter.disabled = false;
+        applyFilters();
+      } catch (error) {
+        cityFilter.disabled = false;
+        showError(error.message);
+      }
+    }
+
+    async function loadData() {
+      const session = await authenticate();
+      if (!session) return;
+
+      try {
+        const response = await fetch('/data/portal-manifest.json', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Manifesto de dados não encontrado (HTTP ${response.status})`);
+        const manifest = await response.json();
+        state.cities = manifest.cities || [];
+        state.bundle = manifest.bundle || '';
+        const hasBundles = state.bundle || state.cities.every(city => city.bundle);
+        if (!state.cities.length || !hasBundles) throw new Error('O manifesto de dados está incompleto');
+
+        const cityOptions = document.getElementById('cityFilterOptions');
+        cityOptions.textContent = '';
+        state.cities.forEach(city => {
+          const option = document.createElement('option');
+          option.value = city.name;
+          option.textContent = `${city.name} (${city.count.toLocaleString('pt-BR')})`;
+          option.label = city.count.toLocaleString('pt-BR') + ' registro(s)';
+          cityOptions.appendChild(option);
+        });
+        cityFilter.value = state.cities[0].name;
+        await loadCityData();
+      } catch (error) {
+        showError(error.message);
+      }
+    }
+
+    cityFilter.addEventListener('change', loadCityData);
+
+    oltFilter.addEventListener('input', applyFilters);
+
+    exportButton.addEventListener('click', () => {
+      const lines = [
+        state.columns.map(csvEscape).join(','),
+        ...state.filteredRows.map(row =>
+          state.columns.map(column => csvEscape(row[column])).join(',')
+        )
+      ];
+      const blob = new Blob(['\uFEFF' + lines.join('\r\n')], {
+        type: 'text/csv;charset=utf-8'
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `beegol-dados-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('logoutButton').addEventListener('click', async () => {
+      await fetch('/api/session', { method: 'DELETE' });
+      window.location.href = 'index.html';
+    });
+
+    loadData();
+  </script>
+</body>
+</html>

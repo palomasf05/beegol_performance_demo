@@ -1,0 +1,9 @@
+{
+  "name": "portal-beegol",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "build:data": "python scripts/build_demo_data.py sources/base_mpes_demo.xlsx sources/cubo_demo.csv"
+  }
+}

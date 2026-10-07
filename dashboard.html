@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beegol · Dashboard Regional</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand-deep:   #0B1222;
+    --brand-mid:    #1C2C4D;
+    --brand-bright: #1651FF;
+    --cyan:         #83B9FF;
+    --white:        #FFFFFF;
+    --off-white:    #F3F5FA;
+    --sidebar-w:    220px;
+    --topbar-h:     52px;
+    --border:       rgba(255,255,255,0.12);
+    --text-muted:   rgba(255,255,255,0.50);
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--off-white);
+    color: #18243B;
+  }
+
+  /* ── Topbar ── */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--topbar-h);
+    background: var(--brand-deep);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+  }
+
+  .topbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .logo-arrows span:last-child { opacity: 0.55; }
+
+  .topbar-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  .topbar-title {
+    font-size: 14px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 400;
+  }
+
+  .topbar-nav {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 11px;
+    background: rgba(0,0,0,.12);
+  }
+
+  .topbar-nav a {
+    min-width: 112px;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    color: rgba(255,255,255,.68);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+
+  .topbar-nav a:hover {
+    color: white;
+    background: rgba(255,255,255,.08);
+  }
+
+  .topbar-nav a.active {
+    color: white;
+    border-color: rgba(91,147,255,.55);
+    background: rgba(22,81,255,.3);
+    box-shadow: 0 2px 8px rgba(0,0,0,.14);
+  }
+  .topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.70);
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(91,147,255,0.25);
+    border: 1.5px solid rgba(91,147,255,0.50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cyan);
+    flex-shrink: 0;
+  }
+
+  .btn-logout {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: rgba(255,255,255,0.65);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .btn-logout:hover {
+    background: rgba(255,255,255,0.08);
+    color: var(--white);
+  }
+
+  /* ── Layout principal ── */
+  .main-wrap {
+    padding-top: var(--topbar-h);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Barra de contexto ── */
+  .context-bar {
+    background: var(--white);
+    border-bottom: 1px solid #DEE5EF;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 42px;
+    flex-shrink: 0;
+  }
+
+  .ctx-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .ctx-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    background: #EAF0FF;
+    color: #233A63;
+    border: 1px solid #D5E0FB;
+  }
+
+  .ctx-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #1651FF;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .ctx-sep { color: #CBD5E1; font-size: 13px; }
+
+  .ctx-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ctx-link {
+    font-size: 12px;
+    color: #1651FF;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity 0.15s;
+  }
+
+  .ctx-link:hover { opacity: 0.7; }
+
+  /* ── Área do iframe ── */
+  .embed-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pbi-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .pbi-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  /* ── Placeholder enquanto iframe não carrega ── */
+  .embed-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: var(--off-white);
+    z-index: 2;
+    transition: opacity 0.4s;
+  }
+
+  .embed-placeholder.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ph-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: #EAF0FF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ph-icon svg {
+    width: 32px;
+    height: 32px;
+    fill: none;
+    stroke: #1651FF;
+    stroke-width: 1.5;
+  }
+
+  .ph-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #18243B;
+  }
+
+  .ph-sub {
+    font-size: 13px;
+    color: #6B7280;
+    text-align: center;
+    max-width: 320px;
+    line-height: 1.5;
+  }
+
+  .ph-loader {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .ph-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1651FF;
+    animation: bounce 1.2s infinite;
+  }
+
+  .ph-dot:nth-child(2) { animation-delay: 0.2s; }
+  .ph-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+    40% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* ── Config modal ── */
+  .config-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.50);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .config-overlay.show { display: flex; }
+
+  .config-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.20);
+  }
+
+  .config-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #18243B;
+    margin-bottom: 6px;
+  }
+
+  .config-sub {
+    font-size: 13px;
+    color: #6B7280;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .config-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #374151;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .config-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    margin-bottom: 20px;
+  }
+
+  .config-input:focus {
+    border-color: #1651FF;
+    box-shadow: 0 0 0 3px rgba(22,81,255,0.12);
+  }
+
+  .config-hint {
+    font-size: 12px;
+    color: #9CA3AF;
+    margin-top: -16px;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  .config-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .btn-cancel {
+    padding: 10px 20px;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    background: transparent;
+    color: #374151;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-cancel:hover { background: #F9FAFB; }
+
+  .btn-save {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #1651FF;
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-save:hover { background: #1BAF82; }
+
+  @media (max-width: 768px) {
+    .topbar-title { display: none; }
+    .ctx-right { display: none; }
+  }
+</style>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/brand.css">
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <a class="topbar-logo" href="#">
+    <img src="assets/logo-beegol.svg" alt="Beegol" class="brand-logo">
+  </a>
+  <div class="topbar-divider"></div>
+  <span class="topbar-title">Portal Regional de Performance</span>
+  <nav class="topbar-nav" aria-label="Menu principal">
+    <a href="dashboard.html" class="active" aria-current="page">Dashboard</a>
+    <a href="dados.html">Dados e exportação</a>
+  </nav>
+  <div class="topbar-right">
+    <div class="topbar-user">
+      <div class="avatar" id="avatarInitials">—</div>
+      <span id="userName">Carregando...</span>
+    </div>
+    <button class="btn-logout" onclick="logout()">Sair</button>
+  </div>
+</div>
+
+<!-- Layout principal -->
+<div class="main-wrap">
+
+  <!-- Barra de contexto -->
+  <div class="context-bar">
+    <span class="ctx-label">Dashboard ativo</span>
+    <span class="ctx-badge">
+      <span class="ctx-dot"></span>
+      Diagnóstico Regional · Power BI
+    </span>
+    <span class="ctx-sep">·</span>
+    <span class="ctx-label" id="ctxPeriod" style="color:#18243B">—</span>
+    
+  </div>
+
+  <!-- Área do embed -->
+  <div class="embed-area">
+
+    <!-- Placeholder de loading -->
+    <div class="embed-placeholder" id="placeholder">
+      <div class="ph-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <div class="ph-title">Carregando o painel</div>
+      <div class="ph-sub" id="phMessage">Preparando seus indicadores...</div>
+      <div class="ph-loader">
+        <div class="ph-dot"></div>
+        <div class="ph-dot"></div>
+        <div class="ph-dot"></div>
+      </div>
+    </div>
+
+    <!-- iframe Power BI -->
+    <iframe
+      id="pbFrame"
+      class="pbi-frame"
+      title="Dashboard Regional Beegol"
+      allowfullscreen
+    ></iframe>
+
+  </div>
+</div>
+
+<script>
+  async function requireSession() {
+    const response = await fetch('/api/session', { cache: 'no-store' });
+    if (!response.ok) {
+      window.location.href = 'index.html';
+      return null;
+    }
+    const session = await response.json();
+    document.getElementById('userName').textContent = session.user.split('@')[0];
+    document.getElementById('avatarInitials').textContent = session.user.slice(0, 2).toUpperCase();
+    return session;
+  }
+  // Embed público (Publicar na Web)
+  async function loadDashboard() {
+    const placeholder = document.getElementById('placeholder');
+    const frame = document.getElementById('pbFrame');
+    const phMsg = document.getElementById('phMessage');
+
+    const session = await requireSession();
+    if (!session) return;
+
+    phMsg.textContent = 'Preparando o painel...';
+
+    try {
+      const response = await fetch('/api/public-config', { cache: 'no-store' });
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Falha ao carregar configuração pública');
+      }
+
+      if (!data.publicBiUrl) {
+        document.querySelector('.ph-title').textContent = 'Relatório Power BI não configurado';
+        document.querySelector('.ph-loader').style.display = 'none';
+        throw new Error('Informe o link de incorporação do relatório Power BI de demonstração na configuração do portal.');
+      }
+      const publicUrl = new URL(data.publicBiUrl);
+      if (
+        publicUrl.protocol !== 'https:' ||
+        publicUrl.hostname !== 'app.powerbi.com' ||
+        !['/view', '/reportEmbed'].some(path => publicUrl.pathname.startsWith(path))
+      ) {
+        throw new Error('A URL configurada não é um link válido de incorporação do Power BI');
+      }
+
+      phMsg.textContent = 'Carregando os indicadores...';
+      frame.addEventListener('load', () => {
+        placeholder.classList.add('hidden');
+      }, { once: true });
+      frame.src = publicUrl.toString();
+    } catch (err) {
+      phMsg.textContent = err.message;
+      document.querySelector('.ph-loader').style.display = 'none';
+      console.error(err);
+    }
+  }
+
+  loadDashboard();
+
+  // ── Logout ──
+  async function logout() {
+    await fetch('/api/session', { method: 'DELETE' });
+    window.location.href = 'index.html';
+  }
+</script>
+
+</body>
+</html>

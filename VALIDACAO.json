@@ -1,0 +1,23 @@
+{
+  "prospectRows": 591630,
+  "cities": 543,
+  "maskedOltValues": 494,
+  "officialLogoUnchanged": true,
+  "operatorMentionsInPublicFiles": 0,
+  "allCityGzipBlocksValidated": true,
+  "loginValidated": true,
+  "dataRequiresLoginLocally": true,
+  "rawSourcesNotServedLocally": true,
+  "rangeDownloadValidated": true,
+  "powerBiEmbedOnly": true,
+  "powerBiConfigured": true,
+  "powerBiReportOpened": true,
+  "powerBiCoverIdentityChecked": true,
+  "localDashboardRemoved": true,
+  "zeroResultsFilterVerifiedInBrowser": true,
+  "csvSerializationRoundTripValidated": true,
+  "exportTestRows": 4,
+  "dataApiAuthenticationValidated": true,
+  "dataApiRangeValidated": true,
+  "dataApiTraversalRejected": true
+}

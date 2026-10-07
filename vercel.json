@@ -1,0 +1,9 @@
+{
+  "functions": { "api/data.js": { "includeFiles": "data/**" } },
+  "routes": [
+    { "src": "/data/(?<file>[^/]+)", "dest": "/api/data?file=$file" },
+    { "src": "/sources/(.*)", "status": 404 },
+    { "src": "/(?:README\\.md|ACESSO_LOCAL\\.md|VALIDACAO\\.json|scripts/(.*)|work/(.*))", "status": 404 },
+    { "handle": "filesystem" }
+  ]
+}
