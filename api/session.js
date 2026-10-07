@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+const demoConfig = require('../lib/demo-config')
 const {
   createSession,
   readSession,
@@ -17,7 +19,7 @@ function getUsers() {
 
     return {}
   } catch {
-    throw new Error('PORTAL_USERS deve ser um objeto JSON válido')
+    throw new Error('PORTAL_USERS deve ser um objeto JSON vÃ¡lido')
   }
 }
 
@@ -39,18 +41,22 @@ module.exports = async function handler(req, res) {
 
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'GET, POST, DELETE')
-    return res.status(405).json({ error: 'Método não permitido' })
+    return res.status(405).json({ error: 'MÃ©todo nÃ£o permitido' })
   }
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {})
     const user = String(body.user || '').trim().toLowerCase()
     const password = String(body.password || '')
-    const users = getUsers()
+    const users = user === 'demo' ? {} : getUsers()
     const expectedPassword = users[user]
 
-    if (!expectedPassword || !safeEqual(password, expectedPassword)) {
-      return res.status(401).json({ error: 'Usuário ou senha incorretos' })
+    const validPassword = user === 'demo'
+      ? safeEqual(crypto.createHash('sha256').update(password).digest('hex'), demoConfig.demoPasswordHash)
+      : Boolean(expectedPassword && safeEqual(password, expectedPassword))
+
+    if (!validPassword) {
+      return res.status(401).json({ error: 'UsuÃ¡rio ou senha incorretos' })
     }
 
     const token = createSession(user)
